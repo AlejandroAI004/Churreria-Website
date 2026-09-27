@@ -53,6 +53,31 @@ Alternatively, run `npm run start:backend` and `npm run start:frontend` from the
 
 Angular forwards `/api` requests to Express through `frontend/proxy.conf.json`. Express allows the development origin configured by `FRONTEND_ORIGIN`. If you change ports, update the environment and proxy settings to match.
 
+## View the app from another device on the same Wi-Fi
+
+This is suitable for a **short test on a Wi-Fi network you trust**, such as your home network. The laptop remains the only host; the other devices just open its web address. The connection uses **HTTP**, so do not use a real or reused password or enter sensitive information. Anyone on that network who can reach the site can browse products, create a test account, and submit demo orders. The Angular development server is not intended for a public or untrusted network.
+
+1. Connect the laptop and the other device to the same trusted Wi-Fi. On the laptop, run `ipconfig` in PowerShell and find the **IPv4 Address** for the active Wi-Fi adapter. Do not use `127.0.0.1` or the router's address. For example, this laptop had `192.168.0.226` during the local check; your address may change later.
+2. Keep `HOST=127.0.0.1` in `backend/.env`. In the first terminal, start the backend as shown above with `npm start`. It stays accessible only from the laptop; Angular forwards `/api` to it through `frontend/proxy.conf.json`.
+3. In a second terminal, start Angular on the laptop's **current Wi-Fi IPv4 address**. Replace the sample address in this command:
+
+   ```powershell
+   cd "C:\path\to\churreria\frontend"
+   npm exec -- ng serve --host 192.168.0.226 --port 4200 --proxy-config proxy.conf.json
+   ```
+
+4. On the other device, open `http://192.168.0.226:4200`, replacing the address with the laptop's current IPv4 address. Leave both terminals running while testing, then press **Ctrl+C** in each terminal to stop sharing.
+
+If the page does not open, check that both devices are on the same Wi-Fi and that the router is not using a guest network or client isolation. Windows Firewall may also block inbound connections. On a **trusted home network**, the safer firewall setup is to mark that Wi-Fi network as **Private** and allow inbound **TCP 4200** from the **local subnet only**. For example, in an administrator PowerShell terminal, after setting the trusted Wi-Fi to Private:
+
+```powershell
+New-NetFirewallRule -DisplayName "La Churreria LAN 4200" -Direction Inbound -Action Allow -Profile Private -Protocol TCP -LocalPort 4200 -RemoteAddress LocalSubnet
+```
+
+Only add this rule if needed; check for an existing matching rule first. Do not disable Windows Firewall or set up router port forwarding for this demo. Remove the rule when finished with `Remove-NetFirewallRule -DisplayName "La Churreria LAN 4200"` in an administrator PowerShell terminal.
+
+**This laptop's current setup:** its Wi-Fi is marked **Public**, and two pre-existing Windows Firewall rules allow `node.exe` from any address on any port under the Public profile. These rules are broader than this demo needs; this project did not create or change them. Review them in Windows Defender Firewall's inbound rules before using Node.js on an untrusted network. The app itself is bound specifically to `192.168.0.226:4200`, while Express remains on `127.0.0.1:3000`. The laptop responded at its Wi-Fi address and returned all eight catalog products, but access from a second physical device has not been verified.
+
 ## Pages and features
 
 - **Home:** Store introduction, example address and opening hours, and links to the catalog and product categories.
