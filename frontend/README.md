@@ -1,5 +1,11 @@
-# Frontend de La Churrería
+# La Churrería — frontend
 
-Consulta [las instrucciones del proyecto](../README.md) para instalar, configurar, arrancar y probar la tienda completa.
+> **Language notice:** The storefront UI is currently in **Spanish**. Navigation, product descriptions, forms, and user-facing messages have not been translated.
 
-Desde esta carpeta: `npm start` (http://localhost:4200), `npm test -- --watch=false` y `npm run build`.
+See the [main project README](../README.md) for installation, configuration, startup, and testing instructions.
+
+From this folder:
+
+- `npm start` starts the app at http://localhost:4200.
+- `npm test -- --watch=false` runs frontend unit tests.
+- `npm run build` creates a production build.

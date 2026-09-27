@@ -1,141 +1,154 @@
 # La Churrería
 
-Tienda local de demostración con Angular 21 + TypeScript, Express 5 + JavaScript y SQLite. El catálogo se obtiene por API REST; productos, cuentas y pedidos se guardan en un archivo local. Sin pagos, servicios de nube, fuentes remotas ni imágenes externas.
+A local demo storefront built with Angular 21 + TypeScript, Express 5 + JavaScript, and SQLite. The catalog is served through a REST API; products, accounts, and demo orders are stored in a local database file.
 
-## Requisitos e instalación
+> **Language notice:** The storefront is currently in **Spanish**. Its navigation, product descriptions, forms, and user-facing messages have not been translated. This README is in English. No real payments or cloud services are used while the app runs.
 
-Instala **Node.js 24 LTS** desde https://nodejs.org/ (incluye npm). Este proyecto usa `node:sqlite`, por lo que se recomienda específicamente la versión 24. Comprueba en una terminal nueva:
+## Requirements and installation
+
+Install **Node.js 24 LTS** from https://nodejs.org/ (npm is included). This project uses the built-in `node:sqlite` module, so Node.js 24 is required. In a new PowerShell terminal, check the installation:
 
 ```powershell
 node -v
 npm -v
 ```
 
-Desde PowerShell:
+From the project root:
 
 ```powershell
-cd "C:\Users\aleja\OneDrive\Desktop\VS\Projects\churreria"
+cd "C:\path\to\churreria"
 npm ci
 npm --prefix backend ci
 npm --prefix frontend ci
 npm run setup
 ```
 
-`npm run setup` copia `backend/.env.example` a `backend/.env` y genera un secreto JWT aleatorio. No muestra el secreto, y conserva un `.env` existente. Si prefieres copiarlo manualmente, usa `Copy-Item backend/.env.example backend/.env` y completa `JWT_SECRET` con un valor aleatorio de al menos 32 caracteres. El backend rechaza secretos vacíos o demasiado cortos. No publiques `.env`.
+Replace `C:\path\to\churreria` with the project folder on your computer. The first three commands install dependencies. `npm run setup` creates `backend/.env` from `backend/.env.example` and generates a random local JWT secret. It does not print the secret or overwrite an existing `.env`. Keep `.env` private. If PowerShell blocks `npm.ps1`, use `npm.cmd` instead.
 
-Si PowerShell bloquea `npm.ps1`, usa `npm.cmd` en los mismos comandos; no necesitas cambiar la política de ejecución del sistema.
+Dependency installation requires internet access. Once installed, the application and tests run locally without cloud services.
 
-Las instalaciones requieren internet. Después, la aplicación y las pruebas funcionan sin servicios externos.
+## Start the application
 
-## Arranque (dos terminales)
+Start the backend and frontend in **two separate PowerShell terminals**.
 
 Terminal 1, backend:
 
 ```powershell
-cd "C:\Users\aleja\OneDrive\Desktop\VS\Projects\churreria\backend"
+cd "C:\path\to\churreria\backend"
 npm start
 ```
 
-API: **http://127.0.0.1:3000/api/health**. SQLite se crea automáticamente en `backend/data/churreria.sqlite`. El backend escucha únicamente en la interfaz local por defecto.
+The API is at **http://127.0.0.1:3000/api/health**. SQLite creates `backend/data/churreria.sqlite` on first startup. The backend listens on the local machine by default.
 
-Terminal 2, frontend:
+Terminal 2, Angular frontend:
 
 ```powershell
-cd "C:\Users\aleja\OneDrive\Desktop\VS\Projects\churreria\frontend"
+cd "C:\path\to\churreria\frontend"
 npm start
 ```
 
-Abre **http://localhost:4200**. Detén cada servidor con **Ctrl+C**.
+Open **http://localhost:4200**. Stop each server with **Ctrl+C**.
 
-Alternativa desde la raíz: `npm run start:backend` y `npm run start:frontend`, en terminales separadas.
+Alternatively, run `npm run start:backend` and `npm run start:frontend` from the project root, in separate terminals.
 
-Angular envía `/api` a Express usando `frontend/proxy.conf.json`. Express también permite el origen configurado en `FRONTEND_ORIGIN` para desarrollo. Si cambias los puertos, actualiza `.env`, el proxy y el comando de arranque. El puerto del frontend se fija en su `package.json`.
+Angular forwards `/api` requests to Express through `frontend/proxy.conf.json`. Express allows the development origin configured by `FRONTEND_ORIGIN`. If you change ports, update the environment and proxy settings to match.
 
-## Páginas y comportamiento
+## Pages and features
 
-- **Inicio**: presentación, dirección y horarios de ejemplo, enlaces al catálogo y a sus categorías.
-- **Productos**: búsqueda por nombre/descripción (ignora tildes y mayúsculas), categorías combinables, detalle, precios en euros y disponibilidad. El botón Buscar o Enter aplica el texto; las categorías se aplican inmediatamente.
-- **Carrito**: añadir, aumentar/reducir (0 elimina; máximo 99), eliminar, vaciar, subtotales y total en céntimos. Persistencia en `localStorage` del mismo navegador y origen. Maneja almacenamiento bloqueado o datos corruptos.
-- **Pedido de demostración**: disponible sin cuenta; valida precios y disponibilidad en el servidor y guarda pedido y líneas en una transacción. No hay cobro, envío ni preparación real. Si cambió un precio o hay un error, conserva el carrito y permite actualizarlo.
-- **Cuenta opcional**: registro e inicio de sesión con correo y contraseña (10–128 caracteres). El JWT se mantiene solo en memoria, expira a la hora y se pierde al recargar/cerrar la página.
-- **Única función protegida**: consultar el perfil con el botón «Consultar perfil protegido» (`GET /api/me`). Catálogo, carrito y pedido son públicos.
+- **Home:** Store introduction, example address and opening hours, and links to the catalog and product categories.
+- **Products:** Search by product name or description (case- and accent-insensitive), filter by category, view product details, and check prices and availability. Search applies on submission; category filters apply immediately.
+- **Cart:** Add and remove products, change quantities, clear the cart, and view subtotals and the total in cents. Cart contents persist in the same browser and site origin through `localStorage`. The app handles blocked storage and invalid saved data.
+- **Demo orders:** Checkout is available without an account. The server verifies prices and availability and saves the order in a transaction. No payment is taken and no real order is prepared or shipped. If the price changes or checkout fails, the cart is preserved.
+- **Optional account:** Register and sign in with an email and a 10–128 character password. The JWT stays in memory, expires after one hour, and is cleared when the page is reloaded or closed.
+- **Protected feature:** Only viewing the profile requires authentication (`GET /api/me`). Browsing, the cart, and demo checkout are public.
 
-Estados de carga, conexión fallida, búsquedas vacías, productos agotados, carrito vacío, producto añadido, error de autenticación y pedido confirmado. Navegación móvil, etiquetas, foco visible, enlace de salto, avisos accesibles y movimiento reducido.
+The UI includes loading and error feedback, empty search results, sold-out products, an empty cart, added-to-cart notifications, and order confirmation. It also has mobile navigation, accessible labels and notifications, visible keyboard focus, a skip link, and reduced-motion support.
 
-## Personalización y estructura
+## Customize the store
+
+Edit `frontend/src/app/store.config.ts` to change the store name, introduction, address, and opening hours. Page titles are in `frontend/src/app/app.routes.ts`; document title and metadata are in `frontend/src/index.html`.
+
+Edit example products in `backend/src/catalog.js`. Seed products are added **only if the products table is empty**; changing the seed file does not overwrite an existing catalog. To keep the existing database, stop the backend and point `DB_PATH` in `.env` to a different file. There is no administration dashboard.
+
+## Project structure
 
 ```text
 churreria/
   backend/
     .env.example
     src/
-      server.js       Arranque y variables de entorno
-      app.js          API REST, validación, JWT y pedidos
-      db.js           Tablas SQLite y carga inicial
-      catalog.js      Categorías y productos de ejemplo
-      password.js     Hash scrypt con sal aleatoria
-    test/api.test.js
-    data/             Base local, creada al arrancar
+      server.js       Starts the API and reads environment variables
+      app.js          REST API, validation, JWT, and demo orders
+      db.js           SQLite schema and initial seed data
+      catalog.js      Example products and categories
+      password.js     scrypt password hashing with random salts
+    test/api.test.js  Backend API and authentication tests
+    data/             Local database, created at startup
   frontend/
     src/app/
-      store.config.ts Nombre, descripción, dirección y horarios
-      app.*           Navegación y estructura
-      home.ts         Inicio
-      catalog.ts      Catálogo y filtros
-      detail.ts       Detalle
-      cart.logic.ts   Operaciones puras del carrito
-      cart.service.ts Estado y almacenamiento
-      cart-page.ts    Carrito y confirmación
-      account.ts      Formularios de acceso y perfil
-      api.service.ts  Comunicación HTTP
-      auth.service.ts Sesión en memoria
-      *.spec.ts       Pruebas Angular/Vitest
-    src/styles.css    Diseño adaptable
-    public/art/       Ilustraciones SVG locales y editables
-    proxy.conf.json   API local para desarrollo
-    proxy.e2e.json    API aislada para integración
-  scripts/setup.mjs
-  e2e/                Flujos Playwright y servidor de prueba
+      store.config.ts Store name, description, address, and hours
+      app.*           App shell and navigation
+      home.ts         Home page
+      catalog.ts      Catalog and filters
+      detail.ts       Product details
+      cart.logic.ts   Pure cart operations
+      cart.service.ts Cart state and browser storage
+      cart-page.ts    Cart and demo order confirmation
+      account.ts      Sign-in forms and profile
+      api.service.ts  HTTP requests
+      auth.service.ts In-memory session
+      *.spec.ts       Angular/Vitest tests
+    src/styles.css    Responsive design
+    public/art/       Local, editable SVG illustrations
+    proxy.conf.json   Development API proxy
+    proxy.e2e.json    Integration-test API proxy
+  scripts/             Setup and smoke-check scripts
+  e2e/                 Playwright end-to-end tests
   playwright.config.ts
-  TESTING.md
+  TESTING.md           Test results and coverage
 ```
 
-Cambia los datos de la tienda en `frontend/src/app/store.config.ts`. Los títulos del navegador se personalizan en `app.routes.ts` y `src/index.html`.
+## REST API
 
-Edita los productos iniciales en `backend/src/catalog.js`. Solo se insertan si **la tabla de productos está vacía**; modificar ese archivo no sustituye un catálogo existente. Para empezar otra base sin perder datos, detén el backend y cambia `DB_PATH` en `.env` a otro archivo, por ejemplo `./data/otra-tienda.sqlite`. No hay panel de administración.
+All responses use JSON. Errors have the form `{ "error": "Clear message" }`.
 
-## API REST
+| Method and route | Purpose | Authentication |
+| --- | --- | --- |
+| `GET /api/health` | Check the API and SQLite | No |
+| `GET /api/categories` | List product categories | No |
+| `GET /api/products?q=&category=` | Search and filter products | No |
+| `GET /api/products/:id` | Get product details | No |
+| `POST /api/auth/register` | Create an account; returns user and JWT | No |
+| `POST /api/auth/login` | Sign in | No |
+| `GET /api/me` | Get the signed-in profile | Bearer JWT |
+| `POST /api/orders` | Place a demo order | No |
 
-Todas las respuestas son JSON. Los errores usan `{ "error": "Mensaje claro" }`.
+Registration and login body:
 
-| Método y ruta                  | Uso                                         | Autenticación |
-| ------------------------------ | ------------------------------------------- | ------------- |
-| GET /api/health                | Estado y comprobación de SQLite             | No            |
-| GET /api/categories            | Categorías del catálogo                     | No            |
-| GET /api/products?q=&category= | Búsqueda y filtros                          | No            |
-| GET /api/products/:id          | Detalle                                     | No            |
-| POST /api/auth/register        | Correo y contraseña; devuelve usuario y JWT | No            |
-| POST /api/auth/login           | Inicia sesión                               | No            |
-| GET /api/me                    | Perfil sin contraseñas ni hash              | Bearer JWT    |
-| POST /api/orders               | Confirma pedido de demostración             | No            |
+```json
+{ "email": "neighbor@example.com", "password": "LocalPassword123!" }
+```
 
-Registro/login: `{ "email": "vecino@example.com", "password": "UnaClaveLocal123!" }`.
+Demo order body:
 
-Pedido: `{ "items": [{ "productId": 1, "quantity": 2, "expectedPriceCents": 350 }] }`.
-El servidor exige productos únicos, de 1 a 50 líneas, cantidades enteras entre 1 y 99 y precios vigentes. Calcula su propio total usando SQLite; no acepta un total del cliente. Las consultas usan parámetros.
+```json
+{ "items": [{ "productId": 1, "quantity": 2, "expectedPriceCents": 350 }] }
+```
 
-Las contraseñas usan scrypt asíncrono con sal aleatoria de 16 bytes (N=32768, r=8, p=3). JWT usa HS256, emisor y audiencia verificados. Hay límite de 30 solicitudes de autenticación por IP cada 15 minutos, límite de JSON y cabeceras Helmet. No se devuelve el hash.
+The server requires 1–50 unique product lines, integer quantities from 1 to 99, and current prices. It calculates the total from SQLite instead of trusting a total from the client. Database queries use parameters.
 
-## Pruebas y compilación
+Passwords are hashed asynchronously with scrypt and a random 16-byte salt (N=32768, r=8, p=3). JWTs use HS256 with a verified issuer and audience. Authentication is limited to 30 requests per IP every 15 minutes. JSON request size is limited, Helmet sets security headers, and password hashes are never returned.
 
-Con Google Chrome instalado:
+## Run tests and build
+
+With Google Chrome installed, run these commands from the project root:
 
 ```powershell
 npm test
 npm run build
 ```
 
-Por separado:
+Run individual test suites:
 
 ```powershell
 npm run test:backend
@@ -143,20 +156,14 @@ npm run test:frontend
 npm run test:e2e
 ```
 
-- Backend: runner de Node + Supertest y bases SQLite temporales.
-- Frontend: Angular CLI + Vitest y pruebas de lógica/servicios HTTP.
-- Integración: Playwright con Chrome sin interfaz, Angular en **4300**, Express en **3101** y SQLite independiente en `.test-data/e2e.sqlite`. Ambos servidores de pruebas se arrancan/detienen automáticamente. Deja libres esos puertos.
-- `npm run build` compila a `frontend/dist/frontend/browser`; el uso local documentado es con `npm start`.
-- Informe de navegador: `npx playwright show-report`; capturas en `test-results/`.
+Backend tests use Node's test runner, Supertest, and temporary SQLite databases. Frontend unit tests use Angular CLI and Vitest. Integration tests use Playwright and headless Chrome with Angular on port **4300**, Express on **3101**, and a separate SQLite database at `.test-data/e2e.sqlite`. The test servers start and stop automatically; keep those ports free. `npm run build` writes the production build to `frontend/dist/frontend/browser`.
 
-Si no tienes Chrome, puedes usar Edge instalado con `$env:PLAYWRIGHT_CHANNEL='msedge'` antes de ejecutar las pruebas (en PowerShell). También puedes instalar Chrome una sola vez. No se descarga un navegador durante las pruebas.
+If Chrome is unavailable but Edge is installed, set `$env:PLAYWRIGHT_CHANNEL='msedge'` in PowerShell before running `npm run test:e2e`. See [TESTING.md](TESTING.md) for verified results and test coverage. Run `npx playwright show-report` to open the browser-test report.
 
-Lee `TESTING.md` para el resultado y alcance de la verificación.
+To check the standard local ports, API proxy, catalog, and cart persistence in Chrome, start both app servers and run `node scripts/smoke.mjs`.
 
-## Alcance de este experimento
+## Demo limitations
 
-Sin pagos reales, correo de verificación, recuperación de contraseñas, gestión de inventario, administración ni despliegue público. Las cuentas no requieren correos reales. No se descuentan existencias al confirmar; solo se comprueba el indicador de disponibilidad. Los pedidos se guardan localmente pero no hay historial en la interfaz. Usa datos de prueba.
+This local demo has no real payments, email verification, password recovery, stock management, administration dashboard, or online deployment. Account email addresses do not need to be real. Inventory is not decremented after checkout; the server only checks the availability flag. Orders are stored locally but are not listed in the UI. Use test data.
 
-La sesión es temporal por diseño; el carrito sí persiste. Los SVG son ilustraciones, y los datos de dirección, horarios y productos son ejemplos. SQLite síncrono es adecuado para este experimento pequeño. La carpeta está dentro de OneDrive por la ubicación elegida en tu equipo: la aplicación no usa su API, pero el cliente de OneDrive podría sincronizarla si lo tienes activado. Para que los archivos permanezcan exclusivamente en la laptop, mueve el proyecto a una carpeta que no se sincronice.
-
-Referencias técnicas: [compatibilidad Angular](https://angular.dev/reference/versions), [pruebas de Angular](https://angular.dev/guide/testing), [SQLite de Node.js](https://nodejs.org/download/release/latest-v24.x/docs/api/sqlite.html).
+The login session is temporary; the cart persists in the browser. Store details and product descriptions are examples. SQLite's synchronous API suits this small local experiment, not a high-traffic production service.
