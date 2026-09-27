@@ -1,0 +1,22 @@
+{
+  "name": "la-churreria",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24.0.0 <25"
+  },
+  "scripts": {
+    "setup": "node scripts/setup.mjs",
+    "start:backend": "npm --prefix backend start",
+    "start:frontend": "npm --prefix frontend start",
+    "test:backend": "npm --prefix backend test",
+    "test:frontend": "npm --prefix frontend test -- --watch=false",
+    "test:e2e": "playwright test",
+    "test": "npm run test:backend && npm run test:frontend && npm run test:e2e",
+    "build": "npm --prefix frontend run build"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.58.0"
+  }
+}

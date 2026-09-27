@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.angular/
+.env
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+test-results/
+playwright-report/
+.test-data/
+*.log

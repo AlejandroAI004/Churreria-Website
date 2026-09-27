@@ -1,0 +1,84 @@
+<a class="skip-link" href="#main">Saltar al contenido</a>
+<div class="topbar">Un buen día empieza con churros. <span>Y mejor si se comparten.</span></div>
+<header class="site-header">
+  <a routerLink="/" class="brand" aria-label="Ir al inicio"
+    ><svg viewBox="0 0 48 52" aria-hidden="true">
+      <path
+        d="M13 42V18a11 11 0 0 1 22 0v24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="10"
+        stroke-linecap="round"
+      />
+      <path d="M13 42V18a11 11 0 0 1 22 0v24" fill="none" stroke="#fff1da" stroke-width="2" /></svg
+    ><span>{{ store.name }}<small>CHURROS & BUENOS RATOS</small></span></a
+  >
+  <button
+    class="menu-toggle"
+    (click)="menuOpen.set(!menuOpen())"
+    [attr.aria-expanded]="menuOpen()"
+    aria-controls="navigation"
+  >
+    Menú <span aria-hidden="true">☰</span>
+  </button>
+  <nav id="navigation" aria-label="Navegación principal" [class.open]="menuOpen()">
+    <a
+      routerLink="/"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }"
+      ariaCurrentWhenActive="page"
+      (click)="menuOpen.set(false)"
+      >Inicio</a
+    >
+    <a
+      routerLink="/productos"
+      routerLinkActive="active"
+      ariaCurrentWhenActive="page"
+      (click)="menuOpen.set(false)"
+      >Productos</a
+    >
+    <a
+      routerLink="/cuenta"
+      routerLinkActive="active"
+      ariaCurrentWhenActive="page"
+      (click)="menuOpen.set(false)"
+      >{{ auth.user() ? 'Mi cuenta' : 'Iniciar sesión' }}</a
+    >
+    <a
+      routerLink="/carrito"
+      class="nav-cart"
+      routerLinkActive="active"
+      ariaCurrentWhenActive="page"
+      (click)="menuOpen.set(false)"
+      ><svg viewBox="0 0 24 24" aria-hidden="true">
+        <path
+          d="M5 7h14l1 14H4L5 7Zm3 0V5a4 4 0 0 1 8 0v2"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.7"
+        /></svg
+      >Carrito <span class="count">{{ cart.count() }}</span></a
+    >
+  </nav>
+</header>
+<main id="main" tabindex="-1"><router-outlet /></main>
+@if (cart.storageWarning()) {
+  <div class="storage-warning" role="status">{{ cart.storageWarning() }}</div>
+}
+<div class="notice-region" aria-live="polite" aria-atomic="true">
+  @if (cart.notice()) {
+    <div class="toast">
+      <span>{{ cart.notice() }}</span
+      ><a routerLink="/carrito" (click)="cart.notice.set('')">Ver carrito →</a
+      ><button aria-label="Cerrar aviso" (click)="cart.notice.set('')">×</button>
+    </div>
+  }
+</div>
+<footer class="site-footer">
+  <div>
+    <a routerLink="/" class="footer-brand">{{ store.name }}</a>
+    <p>{{ store.tagline }}</p>
+  </div>
+  <p>Hecho con cariño, servido con una sonrisa.</p>
+  <span class="demo-badge">TIENDA DE DEMOSTRACIÓN · SIN PAGOS</span>
+</footer>
